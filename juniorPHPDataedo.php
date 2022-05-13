@@ -23,20 +23,34 @@ $activeDatabases = [];
 
 // copy ACTIVE $databases to $activeDatabases
 
-$statusValues = [];
+class DatabasesService
+{
+    private static $statusValues = [];
+
+    private static function getStatusValues(string $statusName, array $statuses):void
+    {
+        foreach($statuses as $value => $status)
+            if($status == $statusName)
+                self::$statusValues[] = $value;
+    }
+
+    public static function filterStatus(string $statusName, array $statuses, array &$databases, array &$statusDatabases): void
+    {
+        self::getStatusValues($statusName, $statuses);
+
+        foreach($databases as $database)
+            foreach(self::$statusValues as $statusValue)
+                if($database['status'] == $statusValue)
+                {
+                    $statusDatabases[] = $database;
+                    break;
+                }
+    }
+    
+}
+
 $statusName = 'ACTIVE';
-
-foreach($statuses as $value => $status)
-    if($status == $statusName)
-        $statusValues[] = $value;
-
-foreach($databases as $database)
-    foreach($statusValues as $statusValue)
-        if($database['status'] == $statusValue)
-            {
-               $activeDatabases[] = $database;
-               break;
-            }
+DatabasesService::filterStatus($statusName, $statuses, $databases, $activeDatabases);
 
 var_dump($activeDatabases);
 
